@@ -220,3 +220,174 @@ Conclusion
 This project successfully demonstrates a production-ready data engineering pipeline on Azure, handling large-scale data processing with comprehensive quality checks. The implementation follows industry best practices for cloud data engineering and provides a solid foundation for analytical applications.
 
 The modular architecture allows for easy extension and maintenance, while the comprehensive documentation ensures knowledge transfer and operational support.
+
+----------------------------------------------------------------------------------------------------------------------
+
+# Lab 4: Text Feature Engineering - GoodReads Dataset
+Overview
+This project implements comprehensive text feature engineering for the Goodreads book reviews dataset as part of DSAI 3202 - Data Science in the Cloud. The pipeline transforms raw review text into structured numerical features suitable for machine learning models.
+
+Features Implemented
+1. Basic Text Features
+review_length_words: Number of words in each review
+
+review_length_chars: Number of characters in each review
+
+sentence_count: Approximate number of sentences
+
+avg_word_length: Average length of words in characters
+
+2. Sentiment Analysis Features
+VADER Sentiment:
+
+vader_pos: Positive sentiment intensity (0.0-1.0)
+
+vader_neg: Negative sentiment intensity (0.0-1.0)
+
+vader_neu: Neutral sentiment intensity (0.0-1.0)
+
+vader_compound: Overall sentiment score (-1.0 to 1.0)
+
+TextBlob Sentiment:
+
+blob_polarity: Sentiment polarity (-1.0 to 1.0)
+
+blob_subjectivity: Subjectivity score (0.0-1.0)
+
+3. TF-IDF Features
+1000-dimensional sparse vectors using HashingTF
+
+English stop words removal
+
+Tokenization and text normalization
+
+Captures term importance across the corpus
+
+4. N-gram Features
+Bigram sequences to capture contextual phrases
+
+Identifies common word pairs and expressions
+
+5. Readability Features
+flesch_reading_ease: Readability score (higher = easier to read)
+
+flesch_kincaid_grade: US grade level required (higher = more complex)
+
+smog_index: Complexity measure for technical texts
+
+Data Pipeline Architecture
+Step 1: Data Loading
+Load curated reviews from Gold layer (Delta format)
+
+Source: abfss://lakehouse@goodreadsreviews60301511.dfs.core.windows.net/gold/curated_reviews/
+
+Step 2: Data Splitting (Prevents Data Leakage)
+Training: 70% - Used for fitting all transformers
+
+Validation: 15% - Used for model tuning and feature selection
+
+Test: 15% - Held out for final evaluation
+
+Step 3: Text Cleaning
+Convert to lowercase for consistency
+
+Remove punctuation and extra whitespace
+
+Replace URLs with <URL> placeholders
+
+Trim and validate text length (>10 characters)
+
+Step 4: Feature Extraction
+Apply all feature engineering techniques in parallel
+
+Fit transformers ONLY on training data
+
+Transform validation and test sets using fitted objects
+
+Step 5: Feature Assembly
+Combine all numerical features into final feature vectors
+
+Preserve metadata columns (review_id, book_id, user_id, rating)
+
+Step 6: Data Persistence
+Save to Delta format in feature_v2 directory
+
+Separate folders for train, validation, and test sets
+
+Data Leakage Prevention
+✅ Critical Security Measure: All transformers fitted ONLY on training data
+✅ Validation/Test Integrity: Transformed using fitted objects only
+✅ Proper Pipeline Design: Data split before any feature engineering
+✅ No Information Leakage: Validation/test data never used in training proces
+
+Technologies Used
+Azure Databricks: Distributed computing platform
+
+PySpark: Large-scale data processing
+
+NLTK: Natural language processing toolkit
+
+TextBlob: Simplified text processing
+
+Transformers: Hugging Face library for embeddings
+
+Delta Lake: Reliable data storage format
+
+Key Functions:
+clean_text(): Text normalization and cleaning
+
+extract_basic_features(): Basic text statistics
+
+add_sentiment_features(): Sentiment analysis
+
+tfidf_pipeline: TF-IDF vectorization
+
+add_readability_features(): Readability metrics
+
+Results Summary
+Feature Statistics (Training Data):
+Average words per review: ~131 words
+
+Average characters per review: ~726 characters
+
+Average sentiment score: Slightly positive overall
+
+Readability level: Appropriate for general audience
+
+Output Datasets:
+Training: Features fitted and transformed
+
+Validation: Features transformed using training fittings
+
+Test: Features transformed using training fittings (held out)
+
+Quality Assurance:
+No null values in critical columns
+
+All ratings within valid range (1-5)
+
+Minimum review length enforced
+
+Proper data types maintained
+
+Key Achievements
+Comprehensive Feature Set: Multiple dimensions of text analysis
+
+Production-Ready Pipeline: Scalable and maintainable code
+
+Data Leakage Prevention: Robust pipeline design
+
+Cloud-Native Implementation: Azure Databricks and ADLS integration
+
+Reproducible Results: Consistent feature engineering process
+
+Next Steps
+This feature-rich dataset is now ready for:
+
+Machine learning model training
+
+Feature selection and importance analysis
+
+Model validation and hyperparameter tuning
+
+Production deployment in Azure ML
